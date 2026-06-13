@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Оформление заказа — AVIAKASSA</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .order-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .order-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+        .order-form-box {
+            background: rgba(255,255,255,.05);
+            border-radius: 30px;
+            padding: 30px;
+            border: 1px solid rgba(255,255,255,.08);
+        }
+        .order-form-box h2 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .order-form-box p {
+            color: rgba(255,255,255,.6);
+            margin-bottom: 25px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: rgba(255,255,255,.8);
+        }
+        .form-group label i {
+            margin-right: 8px;
+            color: #4db8ff;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.1);
+            border-radius: 16px;
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #4db8ff;
+            background: rgba(77,184,255,.1);
+        }
+        .form-group input::placeholder {
+            color: rgba(255,255,255,.4);
+        }
+        .order-summary {
+            background: rgba(255,255,255,.05);
+            border-radius: 30px;
+            padding: 30px;
+            border: 1px solid rgba(255,255,255,.08);
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+        }
+        .order-summary h2 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .flight-card-summary {
+            background: rgba(255,255,255,.08);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .flight-route-summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .flight-city-summary {
+            text-align: center;
+        }
+        .flight-city-summary h3 {
+            font-size: 22px;
+            color: #4db8ff;
+        }
+        .flight-city-summary p {
+            font-size: 12px;
+            color: rgba(255,255,255,.6);
+        }
+        .flight-line-summary {
+            flex: 1;
+            text-align: center;
+            color: rgba(255,255,255,.5);
+        }
+        .flight-info-summary {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,.1);
+        }
+        .info-tag-summary {
+            background: rgba(255,255,255,.08);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+        .total-price {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-top: 1px solid rgba(255,255,255,.1);
+            margin-top: 20px;
+        }
+        .total-price span {
+            font-size: 20px;
+            color: rgba(255,255,255,.7);
+        }
+        .total-price strong {
+            font-size: 32px;
+            color: #4db8ff;
+        }
+        .pay-btn {
+            width: 100%;
+            padding: 16px;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+        .success-box {
+            text-align: center;
+            padding: 40px;
+            background: rgba(77,184,255,.1);
+            border-radius: 30px;
+            border: 1px solid rgba(77,184,255,.3);
+        }
+        .success-box i {
+            font-size: 64px;
+            color: #4db8ff;
+            margin-bottom: 20px;
+        }
+        .success-box h2 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .success-box p {
+            color: rgba(255,255,255,.7);
+            margin-bottom: 20px;
+        }
+        .ticket-number {
+            background: rgba(0,0,0,.3);
+            padding: 15px;
+            border-radius: 16px;
+            font-family: monospace;
+            font-size: 18px;
+            margin: 20px 0;
+        }
+        @media (max-width: 768px) {
+            .order-grid {
+                grid-template-columns: 1fr;
+            }
+            .order-summary {
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header class="main-header">
+    <div class="container header-content">
+        <a href="index.html" class="logo">✈ AVIAKASSA</a>
+        <nav class="main-nav">
+            <a href="index.html">Главная</a>
+            <a href="flights.html">Рейсы</a>
+            <a href="cart.html">Корзина</a>
+            <a href="orders.html">Мои билеты</a>
+            <a href="profile.html">Профиль</a>
+        </nav>
+        <div class="header-actions" id="loginContainer">
+            <a href="auth.html" class="secondary-btn">Войти</a>
+            <a href="auth.html?tab=register" class="main-btn">Регистрация</a>
+        </div>
+    </div>
+</header>
+
+<div class="order-container">
+    <div id="orderContent">
+        <!-- Сюда динамически подставляется контент -->
+    </div>
+</div>
+
+<footer class="footer">
+    <div class="container footer-content">
+        <div class="footer-left"><div class="footer-logo">✈ AVIAKASSA</div><p>Современный сервис поиска и бронирования авиабилетов.</p></div>
+        <div class="footer-links"><a href="index.html">Главная</a><a href="flights.html">Рейсы</a><a href="orders.html">Билеты</a><a href="profile.html">Профиль</a></div>
+    </div>
+</footer>
+
+<script src="js/main.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/cart.js"></script>
+<script>
+    // Словарь для названий городов
+    const cityNames = {
+        'SVO': 'Москва (SVO)', 'DME': 'Москва (DME)', 'VKO': 'Москва (VKO)',
+        'LED': 'Санкт-Петербург (LED)', 'AER': 'Сочи (AER)', 'KZN': 'Казань (KZN)',
+        'SVX': 'Екатеринбург (SVX)', 'OVB': 'Новосибирск (OVB)', 'UUD': 'Улан-Удэ (UUD)',
+        'IKT': 'Иркутск (IKT)', 'VVO': 'Владивосток (VVO)', 'KUF': 'Самара (KUF)',
+        'KRR': 'Краснодар (KRR)', 'ROV': 'Ростов-на-Дону (ROV)', 'GOJ': 'Нижний Новгород (GOJ)',
+        'UFA': 'Уфа (UFA)', 'KGD': 'Калининград (KGD)',
+        'DXB': 'Дубай (DXB)', 'IST': 'Стамбул (IST)', 'SAW': 'Стамбул (SAW)',
+        'ALA': 'Алматы (ALA)', 'JFK': 'Нью-Йорк (JFK)', 'LHR': 'Лондон (LHR)',
+        'CDG': 'Париж (CDG)', 'NRT': 'Токио (NRT)', 'BKK': 'Бангкок (BKK)', 'PEK': 'Пекин (PEK)'
+    };
+    
+    function getCityName(code) {
+        return cityNames[code] || code;
+    }
+    
+    function showNotification(msg) {
+        const n = document.createElement('div');
+        n.innerHTML = `<i class="fas fa-info-circle"></i> ${msg}`;
+        n.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#059669;color:white;padding:12px 24px;border-radius:8px;z-index:9999;animation:fadeInOut 3s ease forwards';
+        if (!document.querySelector('#notif-style')) {
+            const s = document.createElement('style');
+            s.id = 'notif-style';
+            s.textContent = '@keyframes fadeInOut{0%{opacity:0;transform:translateX(50px)}15%{opacity:1;transform:translateX(0)}85%{opacity:1;transform:translateX(0)}100%{opacity:0;transform:translateX(50px);visibility:hidden}}';
+            document.head.appendChild(s);
+        }
+        document.body.appendChild(n);
+        setTimeout(() => n.remove(), 3000);
+    }
+    
+    function getCart() {
+        const cartJson = localStorage.getItem('aviakassa_cart');
+        return cartJson ? JSON.parse(cartJson) : { items: [], total: 0, expiresAt: null };
+    }
+    
+    function renderOrderPage() {
+        const cart = getCart();
+        const container = document.getElementById('orderContent');
+        
+        if (!cart.items.length) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 60px 20px; background: rgba(255,255,255,.05); border-radius: 30px;">
+                    <i class="fas fa-shopping-cart" style="font-size: 64px; color: rgba(255,255,255,.3); margin-bottom: 20px;"></i>
+                    <h2 style="margin-bottom: 15px;">Корзина пуста</h2>
+                    <p style="margin-bottom: 30px;">Добавьте билеты, чтобы оформить заказ</p>
+                    <a href="flights.html" class="main-btn">Найти билеты</a>
+                </div>
+            `;
+            return;
+        }
+        
+        // Собираем информацию о рейсах в корзине
+        let flightsHtml = '';
+        cart.items.forEach(item => {
+            flightsHtml += `
+                <div class="flight-card-summary">
+                    <div class="flight-route-summary">
+                        <div class="flight-city-summary">
+                            <h3>${item.name.split(':')[1]?.split('→')[0] || 'Откуда'}</h3>
+                            <p>Вылет</p>
+                        </div>
+                        <div class="flight-line-summary">
+                            <i class="fas fa-plane"></i> 
+                        </div>
+                        <div class="flight-city-summary">
+                            <h3>${item.name.split(':')[1]?.split('→')[1] || 'Куда'}</h3>
+                            <p>Прилёт</p>
+                        </div>
+                    </div>
+                    <div class="flight-info-summary">
+                        <div class="info-tag-summary"><i class="fas fa-ticket"></i> ${item.quantity} билет(ов)</div>
+                        <div class="info-tag-summary"><i class="fas fa-ruble-sign"></i> ${item.price.toLocaleString()} ₽</div>
+                        <div class="info-tag-summary"><i class="fas fa-calculator"></i> Итого: ${(item.price * item.quantity).toLocaleString()} ₽</div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        container.innerHTML = `
+            <div class="order-grid">
+                <div class="order-form-box">
+                    <h2><i class="fas fa-user-check"></i> Пассажир</h2>
+                    <p>Введите данные для оформления билета</p>
+                    <form id="orderForm">
+                        <div class="form-group">
+                            <label><i class="fas fa-user"></i> ФИО пассажира *</label>
+                            <input type="text" id="passengerName" placeholder="Иванов Иван Иванович" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-calendar"></i> Дата рождения</label>
+                            <input type="date" id="birthDate">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-passport"></i> Номер паспорта</label>
+                            <input type="text" id="passportNumber" placeholder="1234 567890">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-envelope"></i> Email *</label>
+                            <input type="email" id="email" placeholder="example@mail.ru" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-phone"></i> Телефон</label>
+                            <input type="tel" id="phone" placeholder="+7 (999) 123-45-67">
+                        </div>
+                        <button type="submit" class="main-btn pay-btn"><i class="fas fa-lock"></i> Оплатить билеты</button>
+                    </form>
+                    <div id="messageBox" style="margin-top: 20px;"></div>
+                </div>
+                <div class="order-summary">
+                    <h2><i class="fas fa-ticket-alt"></i> Ваш заказ</h2>
+                    ${flightsHtml}
+                    <div class="total-price">
+                        <span>Итого к оплате:</span>
+                        <strong>${cart.total.toLocaleString()} ₽</strong>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('orderForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const token = localStorage.getItem('token');
+            const cart = getCart();
+            const name = document.getElementById('passengerName').value;
+            const email = document.getElementById('email').value;
+            
+            if (!name || !email) {
+                alert('Заполните обязательные поля (ФИО и Email)');
+                return;
+            }
+            
+            const orders = cart.items.map(item => ({
+                passengerName: name,
+                passengerBirthDate: document.getElementById('birthDate').value,
+                passportNumber: document.getElementById('passportNumber').value,
+                flightId: item.id,
+                ticketCount: item.quantity,
+                totalPrice: item.price * item.quantity,
+                email: email,
+                phone: document.getElementById('phone').value
+            }));
+            
+            try {
+                const headers = { 'Content-Type': 'application/json' };
+                if (token) headers['Authorization'] = `Bearer ${token}`;
+                
+                let allSuccess = true;
+                let ticketNumbers = [];
+                
+                for (const order of orders) {
+                    const res = await fetch('/api/orders', { method: 'POST', headers, body: JSON.stringify(order) });
+                    const result = await res.json();
+                    if (result.success) {
+                        ticketNumbers.push(result.ticketNumber);
+                    } else {
+                        allSuccess = false;
+                        break;
+                    }
+                }
+                
+                if (allSuccess) {
+                    localStorage.removeItem('aviakassa_cart');
+                    updateCartCount();
+                    container.innerHTML = `
+                        <div class="success-box">
+                            <i class="fas fa-circle-check"></i>
+                            <h2>✅ Оплата прошла успешно!</h2>
+                            <p>Ваши билеты успешно оформлены</p>
+                            <div class="ticket-number">
+                                <i class="fas fa-barcode"></i> Номера билетов:<br>
+                                <strong>${ticketNumbers.join(', ')}</strong>
+                            </div>
+                            <a href="orders.html" class="main-btn">Перейти к заказам</a>
+                            <a href="flights.html" class="secondary-btn" style="margin-left: 15px;">Найти ещё билеты</a>
+                        </div>
+                    `;
+                    showNotification('✅ Заказ успешно оформлен!');
+                } else {
+                    document.getElementById('messageBox').innerHTML = `<div class="error-message" style="color:#ff6b6b; text-align:center;">❌ Ошибка оформления заказа</div>`;
+                }
+            } catch(err) {
+                document.getElementById('messageBox').innerHTML = `<div class="error-message" style="color:#ff6b6b; text-align:center;">❌ Ошибка сервера</div>`;
+            }
+        });
+    }
+    
+    function updateCartCount() {
+        const cart = getCart();
+        const count = cart.items.reduce((total, item) => total + item.quantity, 0);
+        document.querySelectorAll('.cart-count').forEach(el => { if (el) el.textContent = count; });
+    }
+    
+    renderOrderPage();
+    updateCartCount();
+</script>
+</body>
+</html>

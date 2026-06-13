@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Рейсы — AVIAKASSA</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<header class="main-header">
+    <div class="container header-content">
+        <a href="index.html" class="logo">✈ AVIAKASSA</a>
+        <nav class="main-nav">
+            <a href="index.html">Главная</a>
+            <a href="flights.html" class="active">Рейсы</a>
+            <a href="orders.html">Мои билеты</a>
+            <a href="profile.html">Профиль</a>
+        </nav>
+        <div class="header-actions" id="loginContainer">
+            <a href="auth.html" class="secondary-btn">Войти</a>
+            <a href="auth.html?tab=register" class="main-btn">Регистрация</a>
+        </div>
+    </div>
+</header>
+
+<!-- Модальное окно фильтрации -->
+<div id="filterModal" class="filter-modal">
+    <div class="filter-modal-content">
+        <div class="filter-modal-header">
+            <h2><i class="fas fa-sliders-h"></i> Фильтрация рейсов</h2>
+            <button class="filter-modal-close" onclick="closeFilterModal()">&times;</button>
+        </div>
+        <div class="filter-modal-body">
+            <div class="filter-section">
+                <h3><i class="fas fa-ruble-sign"></i> Цена</h3>
+                <div class="filter-price">
+                    <input type="range" id="priceMin" min="0" max="60000" step="500" value="0">
+                    <input type="range" id="priceMax" min="0" max="60000" step="500" value="60000">
+                    <div class="price-values">
+                        <span id="priceMinValue">0 ₽</span> — <span id="priceMaxValue">60 000 ₽</span>
+                    </div>
+                </div>
+            </div>
+            <div class="filter-section">
+                <h3><i class="fas fa-suitcase"></i> Багаж</h3>
+                <div class="filter-options">
+                    <label class="filter-checkbox"><input type="checkbox" id="filterBaggage"> С багажом</label>
+                    <label class="filter-checkbox"><input type="checkbox" id="filterNoBaggage"> Без багажа</label>
+                </div>
+            </div>
+            <div class="filter-section">
+                <h3><i class="fas fa-clock"></i> Время вылета</h3>
+                <div class="filter-options">
+                    <label class="filter-checkbox"><input type="checkbox" id="filterMorning"> 🌅 Утро (06:00-12:00)</label>
+                    <label class="filter-checkbox"><input type="checkbox" id="filterAfternoon"> ☀️ День (12:00-18:00)</label>
+                    <label class="filter-checkbox"><input type="checkbox" id="filterEvening"> 🌙 Вечер (18:00-00:00)</label>
+                </div>
+            </div>
+            <div class="filter-section">
+                <h3><i class="fas fa-building"></i> Авиакомпании</h3>
+                <div class="filter-options" id="filterAirlines"></div>
+            </div>
+            <div class="filter-section">
+                <h3><i class="fas fa-plane-departure"></i> Аэропорты вылета</h3>
+                <div class="filter-options" id="filterDepartureAirports"></div>
+            </div>
+        </div>
+        <div class="filter-modal-footer">
+            <button class="secondary-btn" onclick="resetFilters()">Сбросить все</button>
+            <button class="main-btn" onclick="applyFilters()">Применить фильтры</button>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно деталей рейса -->
+<div id="flightDetailModal" class="flight-detail-modal">
+    <div class="flight-detail-modal-content">
+        <div class="flight-detail-modal-header">
+            <h2><i class="fas fa-plane"></i> Детали рейса</h2>
+            <button class="flight-detail-modal-close" onclick="closeFlightDetailModal()">&times;</button>
+        </div>
+        <div class="flight-detail-modal-body" id="flightDetailBody"></div>
+        <div class="flight-detail-modal-footer">
+            <button class="secondary-btn" onclick="closeFlightDetailModal()">Закрыть</button>
+        </div>
+    </div>
+</div>
+
+<section class="page-hero">
+    <div class="container page-hero-content">
+        <h1>Найденные рейсы</h1>
+        <p>Выберите лучший вариант перелета среди доступных авиакомпаний.</p>
+    </div>
+</section>
+
+<section class="flights-section">
+    <div class="container">
+        <div class="section-top">
+            <h2>Доступные рейсы</h2>
+            <button id="openFilterBtn" class="filter-main-btn">
+                <i class="fas fa-filter"></i> Фильтры
+            </button>
+        </div>
+        <div id="flightsList" class="flights-grid">
+            <div style="text-align:center; padding:50px;">Загрузка рейсов...</div>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="container footer-content">
+        <div class="footer-left"><div class="footer-logo">✈ AVIAKASSA</div><p>Современный сервис поиска и бронирования авиабилетов.</p></div>
+        <div class="footer-links"><a href="index.html">Главная</a><a href="flights.html">Рейсы</a><a href="orders.html">Билеты</a><a href="profile.html">Профиль</a></div>
+    </div>
+</footer>
+
+<script src="js/main.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/cart.js"></script>
+<script>
+    let allFlights = [];
+    let currentFlights = [];
+    
+    
+    
+    const cityNames = {
+        'SVO': 'Москва (SVO)', 'DME': 'Москва (DME)', 'VKO': 'Москва (VKO)',
+        'LED': 'Санкт-Петербург (LED)', 'AER': 'Сочи (AER)', 'KZN': 'Казань (KZN)',
+        'SVX': 'Екатеринбург (SVX)', 'OVB': 'Новосибирск (OVB)', 'UUD': 'Улан-Удэ (UUD)',
+        'IKT': 'Иркутск (IKT)', 'VVO': 'Владивосток (VVO)', 'KUF': 'Самара (KUF)',
+        'ROV': 'Ростов-на-Дону (ROV)', 'GOJ': 'Нижний Новгород (GOJ)',
+        'DXB': 'Дубай (DXB)', 'IST': 'Стамбул (IST)', 'SAW': 'Стамбул (SAW)',
+        'ALA': 'Алматы (ALA)', 'JFK': 'Нью-Йорк (JFK)', 'LHR': 'Лондон (LHR)',
+        'CDG': 'Париж (CDG)', 'NRT': 'Токио (NRT)', 'BKK': 'Бангкок (BKK)', 'PEK': 'Пекин (PEK)'
+    };
+    
+    function getCityName(code) {
+        return cityNames[code] || code;
+    }
+    
+    function getCart() {
+        const cartJson = localStorage.getItem('aviakassa_cart');
+        return cartJson ? JSON.parse(cartJson) : { items: [], total: 0, expiresAt: null };
+    }
+    
+    function saveCart(cart) {
+        localStorage.setItem('aviakassa_cart', JSON.stringify(cart));
+    }
+    
+    function updateCartCountGlobal() {
+        const cart = getCart();
+        const count = cart.items.reduce((s, i) => s + i.quantity, 0);
+        document.querySelectorAll('.cart-count').forEach(el => { if (el) el.textContent = count; });
+        const headerCount = document.getElementById('cartCountHeader');
+        if (headerCount) headerCount.textContent = count;
+    }
+    
+    function showNotification(msg) {
+    const oldNotification = document.querySelector('.custom-notification');
+    if (oldNotification) oldNotification.remove();
+    
+    // Маленький звук (раскомментируй, если хочешь)
+    // const audio = new Audio('/sounds/ding.mp3');
+    // audio.play().catch(e => console.log('Звук не поддерживается'));
+    
+    const notification = document.createElement('div');
+    notification.className = 'custom-notification';
+    notification.innerHTML = `
+        <div class="notification-icon">
+            <i class="fas fa-plane-departure"></i>
+        </div>
+        <div class="notification-content">
+            <div class="notification-title">✈️ Билет добавлен!</div>
+            <div class="notification-message">${msg}</div>
+        </div>
+        <button class="notification-close">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="notification-progress"></div>
+    `;
+    
+    notification.style.cssText = `
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        min-width: 340px;
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+        border-radius: 24px;
+        padding: 18px 22px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        z-index: 10000;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        border: 1px solid rgba(77,184,255,0.2);
+        animation: notificationSlideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        backdrop-filter: blur(12px);
+    `;
+    
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes notificationSlideIn {
+            from { opacity: 0; transform: translateX(100px) scale(0.9); }
+            to { opacity: 1; transform: translateX(0) scale(1); }
+        }
+        @keyframes notificationSlideOut {
+            from { opacity: 1; transform: translateX(0) scale(1); }
+            to { opacity: 0; transform: translateX(100px) scale(0.9); }
+        }
+        @keyframes progressShrink {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+        .custom-notification .notification-icon {
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, #4db8ff, #6d7dff);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            box-shadow: 0 0 20px rgba(77,184,255,0.4);
+        }
+        .custom-notification .notification-content {
+            flex: 1;
+        }
+        .custom-notification .notification-title {
+            font-weight: bold;
+            font-size: 16px;
+            color: #4db8ff;
+            margin-bottom: 4px;
+        }
+        .custom-notification .notification-message {
+            font-size: 14px;
+            color: rgba(255,255,255,0.8);
+        }
+        .custom-notification .notification-close {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            transition: 0.2s;
+        }
+        .custom-notification .notification-close:hover {
+            background: rgba(255,107,107,0.3);
+            color: #ff6b6b;
+        }
+        .custom-notification .notification-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #4db8ff, #6d7dff);
+            border-radius: 0 0 24px 24px;
+            animation: progressShrink 3s linear forwards;
+        }
+    `;
+    document.head.appendChild(style);
+    
+    document.body.appendChild(notification);
+    
+    // Закрытие по кнопке
+    notification.querySelector('.notification-close')?.addEventListener('click', () => {
+        notification.style.animation = 'notificationSlideOut 0.3s ease forwards';
+        setTimeout(() => notification.remove(), 300);
+    });
+    
+    // Автоматическое закрытие через 3 секунды
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.style.animation = 'notificationSlideOut 0.3s ease forwards';
+            setTimeout(() => notification.remove(), 300);
+        }
+    }, 3000);
+}
+    
+    async function loadFlights() {
+        const container = document.getElementById('flightsList');
+        try {
+            const res = await fetch('/api/flights');
+            allFlights = await res.json();
+            currentFlights = [...allFlights];
+            
+            if (!applySearchFilters()) {
+                renderFlights(currentFlights);
+            }
+            initFilterOptions();
+            initPriceFilter();
+        } catch(e) { 
+            console.error(e);
+            container.innerHTML = '<div style="text-align:center; padding:50px;">Ошибка загрузки рейсов</div>';
+        }
+    }
+    
+    function initPriceFilter() {
+        const prices = allFlights.map(f => f.Price);
+        const min = Math.min(...prices);
+        const max = Math.max(...prices);
+        const priceMinEl = document.getElementById('priceMin');
+        const priceMaxEl = document.getElementById('priceMax');
+        if (priceMinEl) {
+            priceMinEl.min = min;
+            priceMinEl.max = max;
+            priceMinEl.value = min;
+        }
+        if (priceMaxEl) {
+            priceMaxEl.min = min;
+            priceMaxEl.max = max;
+            priceMaxEl.value = max;
+        }
+        const minValEl = document.getElementById('priceMinValue');
+        const maxValEl = document.getElementById('priceMaxValue');
+        if (minValEl) minValEl.textContent = min.toLocaleString() + ' ₽';
+        if (maxValEl) maxValEl.textContent = max.toLocaleString() + ' ₽';
+        
+        document.getElementById('priceMin')?.addEventListener('input', function() {
+            let val = parseInt(this.value);
+            let maxVal = parseInt(document.getElementById('priceMax').value);
+            if (val > maxVal) this.value = maxVal;
+            document.getElementById('priceMinValue').textContent = parseInt(this.value).toLocaleString() + ' ₽';
+        });
+        document.getElementById('priceMax')?.addEventListener('input', function() {
+            let val = parseInt(this.value);
+            let minVal = parseInt(document.getElementById('priceMin').value);
+            if (val < minVal) this.value = minVal;
+            document.getElementById('priceMaxValue').textContent = parseInt(this.value).toLocaleString() + ' ₽';
+        });
+    }
+    
+    function applySearchFilters() {
+        const searchParams = sessionStorage.getItem('searchParams');
+        if (searchParams) {
+            const { from, to, date } = JSON.parse(searchParams);
+            sessionStorage.removeItem('searchParams');
+            
+            let filtered = [...allFlights];
+            
+            if (from && from.trim()) {
+                filtered = filtered.filter(f => 
+                    getCityName(f.DepartureAirport).toLowerCase().includes(from.toLowerCase()) ||
+                    f.DepartureAirport.toLowerCase().includes(from.toLowerCase())
+                );
+            }
+            
+            if (to && to.trim()) {
+                filtered = filtered.filter(f => 
+                    getCityName(f.ArrivalAirport).toLowerCase().includes(to.toLowerCase()) ||
+                    f.ArrivalAirport.toLowerCase().includes(to.toLowerCase())
+                );
+            }
+            
+            if (date) {
+                const filteredByDate = filtered.filter(f => f.DepartureTime?.startsWith(date));
+                if (filteredByDate.length > 0) {
+                    filtered = filteredByDate;
+                } else {
+                    setTimeout(() => {
+                        showNotification(`⚠️ На ${new Date(date).toLocaleDateString('ru-RU')} рейсов не найдено. Показаны все доступные рейсы по маршруту.`);
+                    }, 100);
+                }
+            }
+            
+            currentFlights = filtered;
+            renderFlights(currentFlights);
+            
+            if (filtered.length === 0) {
+                document.getElementById('flightsList').innerHTML = '<div style="text-align:center; padding:50px;">По вашему запросу рейсов не найдено</div>';
+            }
+            return true;
+        }
+        return false;
+    }
+    
+    function renderFlights(flights) {
+        const container = document.getElementById('flightsList');
+        if (!flights.length) { 
+            container.innerHTML = '<div style="text-align:center; padding:50px;">Рейсы не найдены</div>'; 
+            return; 
+        }
+        container.innerHTML = flights.map(flight => `
+            <div class="flight-card" onclick="openFlightDetailModal(${JSON.stringify(flight).replace(/"/g, '&quot;')})">
+                <div class="flight-top">
+                    <div class="airline">
+                        <div class="airline-logo">${flight.Airline?.charAt(0) || '✈'}</div>
+                        <div>
+                            <h3>${flight.Airline} ${flight.FlightNumber}</h3>
+                            <p>${getCityName(flight.DepartureAirport)} → ${getCityName(flight.ArrivalAirport)}</p>
+                        </div>
+                    </div>
+                    <div class="flight-price">${flight.Price.toLocaleString()} ₽</div>
+                </div>
+                <div class="flight-route">
+                    <div class="route-point"><h2>${getCityName(flight.DepartureAirport)}</h2><p>${flight.DepartureTime?.split(' ')[1] || '--:--'}</p></div>
+                    <div class="route-line"><i class="fas fa-plane"></i> ${flight.Duration || '2ч'}</div>
+                    <div class="route-point"><h2>${getCityName(flight.ArrivalAirport)}</h2><p>${flight.ArrivalTime?.split(' ')[1] || '--:--'}</p></div>
+                </div>
+                <div class="flight-info">
+                    <div class="info-tag">🧳 ${flight.BaggageInfo || '23 кг'}</div>
+                    <div class="info-tag">${flight.MealsIncluded ? '🍽 Питание' : '🚫 Без питания'}</div>
+                </div>
+                <div class="flight-actions" onclick="event.stopPropagation()">
+                    <div class="quantity-selector">
+                        <label>👥 Кол-во:</label>
+                        <select id="qty_${flight.FlightId}">${[1,2,3,4,5,6,7,8,9].map(n => `<option value="${n}">${n}</option>`).join('')}</select>
+                    </div>
+                    <button class="btn-add-to-cart" onclick="addToCartWithQuantity(${flight.FlightId}, '${flight.Airline} ${flight.FlightNumber}: ${getCityName(flight.DepartureAirport)} → ${getCityName(flight.ArrivalAirport)}', ${flight.Price})">
+                        <i class="fas fa-cart-plus"></i> В корзину
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    function initFilterOptions() {
+        const airlines = [...new Set(allFlights.map(f => f.Airline))];
+        const departureAirports = [...new Set(allFlights.map(f => getCityName(f.DepartureAirport)))];
+        const airlinesContainer = document.getElementById('filterAirlines');
+        const airportsContainer = document.getElementById('filterDepartureAirports');
+        if (airlinesContainer) {
+            airlinesContainer.innerHTML = airlines.map(a => `<label class="filter-checkbox"><input type="checkbox" class="airline-filter" value="${a}"> ${a}</label>`).join('');
+        }
+        if (airportsContainer) {
+            airportsContainer.innerHTML = departureAirports.map(a => `<label class="filter-checkbox"><input type="checkbox" class="airport-filter" value="${a}"> ${a}</label>`).join('');
+        }
+    }
+    
+    function openFilterModal() { document.getElementById('filterModal').style.display = 'flex'; }
+    function closeFilterModal() { document.getElementById('filterModal').style.display = 'none'; }
+    
+    function resetFilters() {
+        const min = Math.min(...allFlights.map(f => f.Price));
+        const max = Math.max(...allFlights.map(f => f.Price));
+        document.getElementById('priceMin').value = min;
+        document.getElementById('priceMax').value = max;
+        document.getElementById('priceMinValue').textContent = min.toLocaleString() + ' ₽';
+        document.getElementById('priceMaxValue').textContent = max.toLocaleString() + ' ₽';
+        document.getElementById('filterBaggage').checked = false;
+        document.getElementById('filterNoBaggage').checked = false;
+        document.getElementById('filterMorning').checked = false;
+        document.getElementById('filterAfternoon').checked = false;
+        document.getElementById('filterEvening').checked = false;
+        document.querySelectorAll('.airline-filter').forEach(cb => cb.checked = false);
+        document.querySelectorAll('.airport-filter').forEach(cb => cb.checked = false);
+        applyFilters();
+    }
+    
+    function applyFilters() {
+        let filtered = [...allFlights];
+        
+        const minPrice = parseInt(document.getElementById('priceMin').value);
+        const maxPrice = parseInt(document.getElementById('priceMax').value);
+        filtered = filtered.filter(f => f.Price >= minPrice && f.Price <= maxPrice);
+        
+        const baggage = document.getElementById('filterBaggage').checked;
+        const noBaggage = document.getElementById('filterNoBaggage').checked;
+        if (baggage && !noBaggage) filtered = filtered.filter(f => f.BaggageInfo && f.BaggageInfo !== '10 кг');
+        else if (!baggage && noBaggage) filtered = filtered.filter(f => f.BaggageInfo === '10 кг');
+        
+        const morning = document.getElementById('filterMorning').checked;
+        const afternoon = document.getElementById('filterAfternoon').checked;
+        const evening = document.getElementById('filterEvening').checked;
+        if (morning || afternoon || evening) {
+            filtered = filtered.filter(f => {
+                const hour = new Date(f.DepartureTime).getHours();
+                if (morning && hour >= 6 && hour < 12) return true;
+                if (afternoon && hour >= 12 && hour < 18) return true;
+                if (evening && hour >= 18 && hour < 24) return true;
+                return false;
+            });
+        }
+        
+        const selectedAirlines = Array.from(document.querySelectorAll('.airline-filter:checked')).map(cb => cb.value);
+        if (selectedAirlines.length) filtered = filtered.filter(f => selectedAirlines.includes(f.Airline));
+        
+        const selectedAirports = Array.from(document.querySelectorAll('.airport-filter:checked')).map(cb => cb.value);
+        if (selectedAirports.length) filtered = filtered.filter(f => selectedAirports.includes(getCityName(f.DepartureAirport)));
+        
+        currentFlights = filtered;
+        renderFlights(currentFlights);
+        closeFilterModal();
+    }
+    
+    let currentDetailFlight = null;
+    
+    function openFlightDetailModal(flight) {
+        currentDetailFlight = flight;
+        const modal = document.getElementById('flightDetailModal');
+        updateDetailModalContent();
+        modal.style.display = 'flex';
+    }
+    
+    function updateDetailModalContent() {
+        if (!currentDetailFlight) return;
+        const body = document.getElementById('flightDetailBody');
+        const qtySelect = document.getElementById('detailQty');
+        const qty = qtySelect ? parseInt(qtySelect.value) : 1;
+        const totalPrice = currentDetailFlight.Price * qty;
+        
+        const date = new Date(currentDetailFlight.DepartureTime).toLocaleDateString('ru-RU');
+        const departTime = currentDetailFlight.DepartureTime?.split(' ')[1] || '--:--';
+        const arriveTime = currentDetailFlight.ArrivalTime?.split(' ')[1] || '--:--';
+        
+        body.innerHTML = `
+            <div class="flight-detail-row">
+                <span class="flight-detail-label">✈ Авиакомпания:</span>
+                <span class="flight-detail-value">${currentDetailFlight.Airline}</span>
+            </div>
+            <div class="flight-detail-row">
+                <span class="flight-detail-label">🔢 Номер рейса:</span>
+                <span class="flight-detail-value">${currentDetailFlight.FlightNumber}</span>
+            </div>
+            <div class="flight-detail-row">
+                <span class="flight-detail-label">📍 Откуда:</span>
+                <span class="flight-detail-value">${getCityName(currentDetailFlight.DepartureAirport)}</span>
+            </div>
+            <div class="flight-detail-row">
+                <span class="flight-detail-label">📍 Куда:</span>
+                <span class="flight-detail-value">${getCityName(currentDetailFlight.ArrivalAirport)}</span>
+            </div>
+            <div class="flight-detail-row">
+                <span class="flight-detail-label">📅 Дата вылета:</span>
+                <span class="flight-detail-value">${date}</span>
+            </div>
+            <div class="flight-detail-row">
+                <span class="flight-detail-label">⏰ Время вылета:</span>
+                <span class="flight-detail-value">${departTime}</span>
+            </div>
+            <div class="flight-detail-row">
+                <span class="flight-detail-label">⏰ Время прилёта:</span>
+                <span class="flight-detail-value">${arriveTime}</span>
+            </div>
+            <div class="flight-detail-row">
+                <span class="flight-detail-label">⏱ Длительность:</span>
+                <span class="flight-detail-value">${currentDetailFlight.Duration || '2ч'}</span>
+            </div>
+            <div class="flight-detail-row">
+                <span class="flight-detail-label">🧳 Багаж:</span>
+                <span class="flight-detail-value">${currentDetailFlight.BaggageInfo || '23 кг'}</span>
+            </div>
+            <div class="flight-detail-row">
+                <span class="flight-detail-label">🍽 Питание:</span>
+                <span class="flight-detail-value">${currentDetailFlight.MealsIncluded ? '🍽 Включено' : '🚫 Не включено'}</span>
+            </div>
+            <div class="flight-detail-row">
+                <span class="flight-detail-label">✈ Тип самолёта:</span>
+                <span class="flight-detail-value">${currentDetailFlight.AircraftType || 'Не указан'}</span>
+            </div>
+            <div class="flight-detail-row">
+                <span class="flight-detail-label">💰 Цена за 1 билет:</span>
+                <span class="flight-detail-value">${currentDetailFlight.Price.toLocaleString()} ₽</span>
+            </div>
+            <div class="flight-detail-row" style="margin-top: 15px; border-bottom: none;">
+                <div class="quantity-selector" style="display: flex; gap: 10px; align-items: center; width: 100%; justify-content: space-between;">
+                    <label>👥 Кол-во:</label>
+                    <select id="detailQty" onchange="updateDetailModalContent()" style="background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 12px; padding: 8px 12px; color: white;">
+                        ${[1,2,3,4,5,6,7,8,9].map(n => `<option value="${n}" ${n === qty ? 'selected' : ''}>${n}</option>`).join('')}
+                    </select>
+                </div>
+            </div>
+            <div class="flight-detail-row" style="border-bottom: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <span style="font-size: 18px; font-weight: bold;">Итого:</span>
+                    <span style="font-size: 28px; font-weight: bold; color: #4db8ff;">${totalPrice.toLocaleString()} ₽</span>
+                </div>
+            </div>
+            <div class="flight-detail-row" style="border-bottom: none; margin-top: 10px;">
+                <button class="btn-add-to-cart" onclick="addFromDetailModal()" style="width: 100%;">
+                    <i class="fas fa-cart-plus"></i> Добавить в корзину
+                </button>
+            </div>
+        `;
+    }
+    
+    function addFromDetailModal() {
+        if (!currentDetailFlight) return;
+        const qtySelect = document.getElementById('detailQty');
+        const qty = qtySelect ? parseInt(qtySelect.value) : 1;
+        
+        const token = localStorage.getItem('token');
+        if (!token) {
+            if (confirm('Для добавления билетов в корзину нужно войти. Перейти на страницу входа?')) {
+                window.location.href = 'auth.html';
+            }
+            return;
+        }
+        
+        let cart = getCart();
+        if (!cart.items.length) {
+            const expiresAt = new Date();
+            expiresAt.setMinutes(expiresAt.getMinutes() + CART_EXPIRY_MINUTES);
+            cart.expiresAt = expiresAt.toISOString();
+        } else {
+            const remaining = new Date(cart.expiresAt) - new Date();
+            if (remaining < 5 * 60 * 1000) {
+                const expiresAt = new Date();
+                expiresAt.setMinutes(expiresAt.getMinutes() + CART_EXPIRY_MINUTES);
+                cart.expiresAt = expiresAt.toISOString();
+                showNotification('🕐 Время бронирования продлено!');
+            }
+        }
+        
+        const flightName = `${currentDetailFlight.Airline} ${currentDetailFlight.FlightNumber}: ${getCityName(currentDetailFlight.DepartureAirport)} → ${getCityName(currentDetailFlight.ArrivalAirport)}`;
+        
+        const existing = cart.items.find(i => i.id === currentDetailFlight.FlightId);
+        if (existing) {
+            existing.quantity += qty;
+        } else {
+            cart.items.push({ 
+                id: currentDetailFlight.FlightId, 
+                name: flightName, 
+                price: currentDetailFlight.Price, 
+                quantity: qty 
+            });
+        }
+        cart.total = cart.items.reduce((s, i) => s + i.price * i.quantity, 0);
+        saveCart(cart);
+        updateCartCountGlobal();
+        showNotification(`✅ ${qty} билет(ов) добавлено в корзину!`);
+        closeFlightDetailModal();
+    }
+    
+    function closeFlightDetailModal() {
+        document.getElementById('flightDetailModal').style.display = 'none';
+        currentDetailFlight = null;
+    }
+    
+    document.getElementById('openFilterBtn')?.addEventListener('click', openFilterModal);
+    document.addEventListener('keydown', (e) => { 
+        if (e.key === 'Escape') {
+            closeFilterModal();
+            closeFlightDetailModal();
+        }
+    });
+    window.onclick = (e) => { 
+        const filterModal = document.getElementById('filterModal'); 
+        const detailModal = document.getElementById('flightDetailModal');
+        if (e.target === filterModal) closeFilterModal();
+        if (e.target === detailModal) closeFlightDetailModal();
+    };
+    
+    loadFlights();
+</script>
+</body>
+</html>

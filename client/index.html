@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIAKASSA — Авиабилеты онлайн</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<header class="main-header">
+    <div class="container header-content">
+        <a href="index.html" class="logo">✈ AVIAKASSA</a>
+        <nav class="main-nav">
+            <a href="index.html" class="active">Главная</a>
+            <a href="flights.html">Рейсы</a>
+            <a href="orders.html">Мои билеты</a>
+            <a href="profile.html">Профиль</a>
+        </nav>
+        <div class="header-actions" id="loginContainer">
+            <a href="auth.html" class="secondary-btn">Войти</a>
+            <a href="auth.html?tab=register" class="main-btn">Регистрация</a>
+        </div>
+    </div>
+</header>
+
+<section class="hero">
+    <div class="container hero-wrapper">
+        <div class="hero-left">
+            <div class="hero-badge">Лучшие цены на перелеты по России и миру</div>
+            <h1 class="hero-title">Путешествуйте <span>быстро, удобно</span> и выгодно</h1>
+            <p class="hero-text">Современный сервис поиска авиабилетов с выгодными тарифами, бонусами, онлайн-регистрацией и премиальным уровнем сервиса.</p>
+            <div class="hero-buttons">
+                <a href="flights.html" class="main-btn">Найти рейс</a>
+            </div>
+        </div>
+        <div class="hero-right">
+            <div class="search-box">
+                <div class="search-top">
+                    <h3>Поиск авиабилетов</h3>
+                    <p>Найдите лучшие рейсы</p>
+                </div>
+                <div class="search-grid">
+                    <div class="input-group">
+                        <label>Откуда</label>
+                        <div class="suggestion-wrapper">
+                            <input type="text" class="input city-input" id="fromCity" placeholder="Москва" autocomplete="off">
+                            <div class="suggestions" id="fromSuggestions"></div>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Куда</label>
+                        <div class="suggestion-wrapper">
+                            <input type="text" class="input city-input" id="toCity" placeholder="Санкт-Петербург" autocomplete="off">
+                            <div class="suggestions" id="toSuggestions"></div>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Дата вылета</label>
+                        <input type="date" class="input" id="departureDate">
+                    </div>
+                    <div class="input-group">
+                        <label>Пассажиры</label>
+                        <div class="passenger-select">
+                            <div id="passengerText">1 взрослый</div>
+                            <div class="passenger-dropdown">
+                                <div class="passenger-row">
+                                    <div><h4>Взрослые</h4><p>От 12 лет</p></div>
+                                    <div class="counter"><button id="adultMinus">−</button><span id="adultCount">1</span><button id="adultPlus">+</button></div>
+                                </div>
+                                <div class="passenger-row">
+                                    <div><h4>Дети</h4><p>До 12 лет</p></div>
+                                    <div class="counter"><button id="childMinus">−</button><span id="childCount">0</span><button id="childPlus">+</button></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="main-btn search-btn" id="searchFlightsBtn">Найти билеты</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="stats-section">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card"><h2>500+</h2><p>Направлений по миру</p></div>
+            <div class="stat-card"><h2>1M+</h2><p>Довольных пассажиров</p></div>
+            <div class="stat-card"><h2>24/7</h2><p>Поддержка клиентов</p></div>
+            <div class="stat-card"><h2>4.9</h2><p>Средняя оценка сервиса</p></div>
+        </div>
+    </div>
+</section>
+
+<section class="popular-section">
+    <div class="container">
+        <div class="section-head"><h2>Популярные направления</h2><p>Самые востребованные перелеты среди наших клиентов</p></div>
+        <div class="popular-grid">
+    <div class="popular-card" data-from="Москва" data-to="Сочи">
+        <div class="popular-image moscow"></div>
+        <div class="popular-content"><h3>Москва → Сочи</h3><p>от 4 900 ₽</p></div>
+    </div>
+    <div class="popular-card" data-from="Москва" data-to="Санкт-Петербург">
+        <div class="popular-image spb"></div>
+        <div class="popular-content"><h3>Москва → Санкт-Петербург</h3><p>от 2 700 ₽</p></div>
+    </div>
+    <div class="popular-card" data-from="Москва" data-to="Дубай">
+        <div class="popular-image dubai"></div>
+        <div class="popular-content"><h3>Москва → Дубай</h3><p>от 26 500 ₽</p></div>
+    </div>
+</div>
+    </div>
+</section>
+
+<section class="features-section">
+    <div class="container">
+        <div class="section-head"><h2>Почему выбирают нас</h2><p>Современные технологии и высокий уровень сервиса</p></div>
+        <div class="features-grid">
+            <div class="feature-card"><div class="feature-icon">✈</div><h3>Более 500 рейсов</h3><p>Огромный выбор направлений по России и миру.</p></div>
+            <div class="feature-card"><div class="feature-icon">₽</div><h3>Лучшие цены</h3><p>Автоматический поиск самых выгодных тарифов.</p></div>
+            <div class="feature-card"><div class="feature-icon">★</div><h3>Premium сервис</h3><p>Поддержка 24/7 и высокий уровень UX.</p></div>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="container footer-content">
+        <div class="footer-left"><div class="footer-logo">✈ AVIAKASSA</div><p>Современный сервис поиска и бронирования авиабилетов.</p></div>
+        <div class="footer-links"><a href="index.html">Главная</a><a href="flights.html">Рейсы</a><a href="orders.html">Билеты</a><a href="profile.html">Профиль</a></div>
+    </div>
+</footer>
+
+<script src="js/main.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/cart.js"></script>
+<script>
+    // Словарь для преобразования кодов аэропортов в названия городов
+    const cityMap = {
+        'SVO': 'Москва', 'DME': 'Москва', 'VKO': 'Москва',
+        'LED': 'Санкт-Петербург', 'AER': 'Сочи', 'KZN': 'Казань',
+        'SVX': 'Екатеринбург', 'OVB': 'Новосибирск', 'UUD': 'Улан-Удэ',
+        'IKT': 'Иркутск', 'VVO': 'Владивосток', 'KUF': 'Самара',
+        'KRR': 'Краснодар', 'ROV': 'Ростов-на-Дону', 'GOJ': 'Нижний Новгород',
+        'UFA': 'Уфа', 'KGD': 'Калининград', 'DXB': 'Дубай',
+        'IST': 'Стамбул', 'SAW': 'Стамбул', 'ALA': 'Алматы',
+        'JFK': 'Нью-Йорк', 'LHR': 'Лондон', 'CDG': 'Париж',
+        'NRT': 'Токио', 'BKK': 'Бангкок', 'PEK': 'Пекин'
+    };
+    
+    let allCities = ['Москва', 'Санкт-Петербург', 'Сочи', 'Дубай', 'Стамбул', 'Алматы', 'Нью-Йорк', 'Лондон', 'Париж', 'Токио', 'Бангкок', 'Пекин', 'Казань', 'Екатеринбург', 'Новосибирск', 'Улан-Удэ', 'Иркутск', 'Владивосток', 'Ростов-на-Дону', 'Нижний Новгород', 'Самара'];
+    
+    async function loadCitiesFromFlights() {
+        try {
+            const res = await fetch('/api/flights');
+            const flights = await res.json();
+            const citiesSet = new Set();
+            flights.forEach(flight => {
+                const fromCity = cityMap[flight.DepartureAirport];
+                const toCity = cityMap[flight.ArrivalAirport];
+                if (fromCity) citiesSet.add(fromCity);
+                if (toCity) citiesSet.add(toCity);
+            });
+            if (citiesSet.size > 0) allCities = Array.from(citiesSet).sort();
+        } catch(e) { console.log('Не удалось загрузить города из БД'); }
+    }
+    
+    function setupSuggestions(inputId, suggestionsId) {
+        const input = document.getElementById(inputId);
+        const suggestions = document.getElementById(suggestionsId);
+        if(!input || !suggestions) return;
+        input.addEventListener('input', () => {
+            const value = input.value.toLowerCase();
+            suggestions.innerHTML = '';
+            if(!value || value.length < 1) { suggestions.style.display = 'none'; return; }
+            const filtered = allCities.filter(c => c.toLowerCase().includes(value));
+            filtered.forEach(city => {
+                const item = document.createElement('div');
+                item.classList.add('suggestion-item');
+                item.textContent = city;
+                item.onclick = () => { input.value = city; suggestions.style.display = 'none'; };
+                suggestions.appendChild(item);
+            });
+            suggestions.style.display = filtered.length ? 'block' : 'none';
+        });
+        document.addEventListener('click', (e) => {
+            if (!input.contains(e.target) && !suggestions.contains(e.target)) suggestions.style.display = 'none';
+        });
+    }
+    
+    async function init() {
+        await loadCitiesFromFlights();
+        setupSuggestions('fromCity', 'fromSuggestions');
+        setupSuggestions('toCity', 'toSuggestions');
+    }
+    init();
+    
+    let adults = 1, children = 0;
+    const passengerText = document.getElementById('passengerText');
+    function updatePassengers() { if(passengerText) passengerText.textContent = `${adults} взр. • ${children} дет.`; }
+    
+    document.getElementById('adultPlus')?.addEventListener('click', () => { if(adults + children < 9) { adults++; document.getElementById('adultCount').textContent = adults; updatePassengers(); } });
+    document.getElementById('adultMinus')?.addEventListener('click', () => { if(adults > 1) { adults--; document.getElementById('adultCount').textContent = adults; updatePassengers(); } });
+    document.getElementById('childPlus')?.addEventListener('click', () => { if(adults + children < 9) { children++; document.getElementById('childCount').textContent = children; updatePassengers(); } });
+    document.getElementById('childMinus')?.addEventListener('click', () => { if(children > 0) { children--; document.getElementById('childCount').textContent = children; updatePassengers(); } });
+    document.querySelector('.passenger-select')?.addEventListener('click', (e) => { e.stopPropagation(); document.querySelector('.passenger-dropdown')?.classList.toggle('active'); });
+    document.addEventListener('click', () => { document.querySelector('.passenger-dropdown')?.classList.remove('active'); });
+    
+    const today = new Date().toISOString().split('T')[0];
+    const dateInput = document.getElementById('departureDate');
+    if(dateInput) { dateInput.min = today; dateInput.value = today; }
+    
+    document.getElementById('searchFlightsBtn')?.addEventListener('click', () => {
+        const from = document.getElementById('fromCity')?.value;
+        const to = document.getElementById('toCity')?.value;
+        const date = document.getElementById('departureDate')?.value;
+        sessionStorage.setItem('searchParams', JSON.stringify({ from, to, date, adults, children }));
+        window.location.href = 'flights.html';
+    });
+    
+    document.querySelectorAll('.popular-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const from = card.dataset.from;
+            const to = card.dataset.to;
+            if(from && to) {
+                document.getElementById('fromCity').value = from;
+                document.getElementById('toCity').value = to;
+                document.getElementById('searchFlightsBtn').click();
+            }
+        });
+    });
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    if(urlParams.get('login') === 'success') {
+        window.history.replaceState({}, document.title, window.location.pathname);
+        setTimeout(() => { if(typeof checkAuth === 'function') checkAuth(); }, 200);
+    }
+    updatePassengers();
+</script>
+</body>
+</html>

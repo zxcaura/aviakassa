@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои билеты — AVIAKASSA</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<header class="main-header">
+    <div class="container header-content">
+        <a href="index.html" class="logo">✈ AVIAKASSA</a>
+        <nav class="main-nav">
+            <a href="index.html">Главная</a>
+            <a href="flights.html">Рейсы</a>
+            <a href="orders.html" class="active">Мои билеты</a>
+            <a href="profile.html">Профиль</a>
+        </nav>
+        <div class="header-actions" id="loginContainer"></div>
+    </div>
+</header>
+
+<section class="page-hero">
+    <div class="container page-hero-content">
+        <h1>Мои билеты</h1>
+        <p>Все ваши активные и завершенные перелеты</p>
+    </div>
+</section>
+
+<section class="tickets-section">
+    <div class="container">
+        <div id="ordersList"></div>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="container footer-content">
+        <div class="footer-left">
+            <div class="footer-logo">✈ AVIAKASSA</div>
+            <p>Современный сервис поиска и бронирования авиабилетов.</p>
+        </div>
+        <div class="footer-links">
+            <a href="index.html">Главная</a>
+            <a href="flights.html">Рейсы</a>
+            <a href="orders.html">Билеты</a>
+            <a href="profile.html">Профиль</a>
+        </div>
+    </div>
+</footer>
+
+<script src="/js/main.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/cart.js"></script>
+<script>
+    async function loadOrders() {
+        const token = localStorage.getItem('token');
+        const container = document.getElementById('ordersList');
+        
+        if (!token) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 60px 20px; background: rgba(255,255,255,.05); border-radius: 30px;">
+                    <i class="fas fa-lock" style="font-size: 64px; color: rgba(255,255,255,.3); margin-bottom: 20px;"></i>
+                    <h3 style="margin-bottom: 15px;">Требуется авторизация</h3>
+                    <p style="margin-bottom: 30px; color: rgba(255,255,255,.6);">Войдите, чтобы увидеть свои билеты</p>
+                    <div style="display: flex; gap: 15px; justify-content: center;">
+                        <a href="auth.html" class="secondary-btn">Войти</a>
+                        <a href="flights.html" class="main-btn">Найти билеты</a>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+        
+        try {
+            const res = await fetch('/api/auth/orders', { headers: { 'Authorization': `Bearer ${token}` } });
+            const orders = await res.json();
+            
+            if (!orders.length) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 80px 20px; background: rgba(255,255,255,.05); border-radius: 30px;">
+                        <i class="fas fa-ticket-alt" style="font-size: 80px; color: rgba(255,255,255,.3); margin-bottom: 20px;"></i>
+                        <h2 style="font-size: 32px; margin-bottom: 15px;">У вас пока нет билетов</h2>
+                        <p style="color: rgba(255,255,255,.6); margin-bottom: 35px;">Найдите подходящие рейсы и оформите бронирование</p>
+                        <a href="flights.html" style="display: inline-block; background: linear-gradient(135deg, #4db8ff, #6d7dff); color: white; padding: 14px 36px; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 16px; box-shadow: 0 0 20px rgba(77,184,255,.3); transition: all 0.3s ease;">Найти билеты</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            orders.forEach(order => {
+                const date = new Date(order.CreatedAt).toLocaleDateString('ru-RU');
+                html += `
+                    <div style="background: rgba(255,255,255,.05); border-radius: 20px; padding: 25px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,.08);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 15px;">
+                            <h3 style="display: flex; align-items: center; gap: 10px;"><i class="fas fa-plane" style="color: #4db8ff;"></i> ${order.Airline} ${order.FlightNumber}</h3>
+                            <div style="font-size: 28px; font-weight: bold; color: #4db8ff;">${order.TotalPrice.toLocaleString()} ₽</div>
+                        </div>
+                        <p style="margin-bottom: 10px;"><i class="fas fa-map-marker-alt"></i> ${order.DepartureAirport} → ${order.ArrivalAirport}</p>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 20px 0; padding: 15px 0; border-top: 1px solid rgba(255,255,255,.08); border-bottom: 1px solid rgba(255,255,255,.08);">
+                            <div><i class="fas fa-calendar"></i> <strong>Дата:</strong> ${date}</div>
+                            <div><i class="fas fa-users"></i> <strong>Билетов:</strong> ${order.TicketCount}</div>
+                            <div><i class="fas fa-user"></i> <strong>Пассажир:</strong> ${order.PassengerName}</div>
+                            <div><i class="fas fa-barcode"></i> <strong>Номер билета:</strong> <span style="font-family: monospace;">${order.TicketNumber}</span></div>
+                        </div>
+                        <div class="flight-info">
+                            <div class="info-tag"><i class="fas fa-envelope"></i> ${order.Email}</div>
+                            <div class="info-tag"><i class="fas fa-check-circle" style="color: #4db8ff;"></i> Подтверждён</div>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        } catch(e) {
+            container.innerHTML = '<div style="text-align:center; padding:60px;">Ошибка загрузки заказов</div>';
+        }
+    }
+    loadOrders();
+</script>
+</body>
+</html>

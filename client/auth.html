@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход — AVIAKASSA</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .error-message {
+            display: none;
+            color: #ff6b6b;
+            font-size: 14px;
+            margin-top: 12px;
+            text-align: center;
+            padding: 10px;
+            background: rgba(255,0,0,.1);
+            border-radius: 12px;
+            border: 1px solid rgba(255,0,0,.2);
+        }
+        .error-message.show {
+            display: block;
+        }
+        .success-message {
+            display: none;
+            color: #4db8ff;
+            font-size: 14px;
+            margin-top: 12px;
+            text-align: center;
+            padding: 10px;
+            background: rgba(77,184,255,.1);
+            border-radius: 12px;
+            border: 1px solid rgba(77,184,255,.2);
+        }
+        .success-message.show {
+            display: block;
+        }
+        .header-home-btn {
+            background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.1);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .header-home-btn:hover {
+            background: rgba(77,184,255,.2);
+            border-color: rgba(77,184,255,.4);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+<header class="main-header">
+    <div class="container header-content">
+        <a href="index.html" class="logo">✈ AVIAKASSA</a>
+        <nav class="main-nav">
+            <a href="index.html">Главная</a>
+            <a href="flights.html">Рейсы</a>
+            <a href="orders.html">Мои билеты</a>
+            <a href="profile.html">Профиль</a>
+        </nav>
+        <div class="header-actions">
+            <a href="index.html" class="header-home-btn">
+                <i class="fas fa-home"></i> Главная
+            </a>
+        </div>
+    </div>
+</header>
+
+<section class="auth-page">
+    <div class="auth-container">
+        <div class="auth-left">
+            <div class="hero-badge">Добро пожаловать</div>
+            <h1>Управляйте своими путешествиями</h1>
+            <p class="hero-text">Авторизуйтесь для доступа к билетам, бонусам и персональным предложениям.</p>
+        </div>
+        <div class="auth-card">
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="loginTabBtn">Вход</button>
+                <button class="auth-tab" id="registerTabBtn">Регистрация</button>
+            </div>
+            <form class="auth-form active" id="loginForm">
+                <h2>Вход</h2>
+                <p class="auth-subtitle">Войдите в свой аккаунт</p>
+                <div class="auth-input"><label>Email</label><input type="email" id="loginEmail" class="input" required></div>
+                <div class="auth-input"><label>Пароль</label><input type="password" id="loginPassword" class="input" required></div>
+                <div id="loginError" class="error-message"></div>
+                <button class="main-btn auth-btn" type="submit">Войти</button>
+            </form>
+            <form class="auth-form" id="registerForm">
+                <h2>Регистрация</h2>
+                <p class="auth-subtitle">Создайте новый аккаунт</p>
+                <div class="auth-input"><label>Имя</label><input type="text" id="regName" class="input" required></div>
+                <div class="auth-input"><label>Email</label><input type="email" id="regEmail" class="input" required></div>
+                <div class="auth-input"><label>Пароль</label><input type="password" id="regPassword" class="input" required></div>
+                <div id="registerError" class="error-message"></div>
+                <button class="main-btn auth-btn" type="submit">Создать аккаунт</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<script src="js/main.js"></script>
+<script src="js/auth.js"></script>
+<script>
+    document.getElementById('loginTabBtn').addEventListener('click', () => {
+        document.getElementById('loginTabBtn').classList.add('active');
+        document.getElementById('registerTabBtn').classList.remove('active');
+        document.getElementById('loginForm').classList.add('active');
+        document.getElementById('registerForm').classList.remove('active');
+    });
+    document.getElementById('registerTabBtn').addEventListener('click', () => {
+        document.getElementById('registerTabBtn').classList.add('active');
+        document.getElementById('loginTabBtn').classList.remove('active');
+        document.getElementById('registerForm').classList.add('active');
+        document.getElementById('loginForm').classList.remove('active');
+    });
+    
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        const errorDiv = document.getElementById('loginError');
+        errorDiv.classList.remove('show');
+        try {
+            const res = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+            const data = await res.json();
+            if(data.success) { 
+                localStorage.setItem('token', data.token); 
+                localStorage.setItem('user', JSON.stringify(data.user)); 
+                window.location.href = 'index.html?login=success'; 
+            } else {
+                errorDiv.innerHTML = data.error || 'Неверный email или пароль';
+                errorDiv.classList.add('show');
+            }
+        } catch(err) { 
+            errorDiv.innerHTML = 'Ошибка сервера';
+            errorDiv.classList.add('show');
+        }
+    });
+    
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fullName = document.getElementById('regName').value;
+        const email = document.getElementById('regEmail').value;
+        const password = document.getElementById('regPassword').value;
+        const errorDiv = document.getElementById('registerError');
+        errorDiv.classList.remove('show');
+        if(password.length < 6) { 
+            errorDiv.innerHTML = 'Пароль должен быть не менее 6 символов'; 
+            errorDiv.classList.add('show');
+            return; 
+        }
+        try {
+            const res = await fetch('/api/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fullName, email, password, phone: '' }) });
+            const data = await res.json();
+            if(data.success) { 
+                errorDiv.style.color = '#4db8ff'; 
+                errorDiv.innerHTML = '✅ Регистрация успешна! Теперь войдите.'; 
+                errorDiv.classList.add('show');
+                setTimeout(() => { 
+                    document.getElementById('loginTabBtn').click(); 
+                    document.getElementById('loginEmail').value = email; 
+                    errorDiv.classList.remove('show');
+                    errorDiv.innerHTML = '';
+                }, 2000); 
+            } else {
+                errorDiv.innerHTML = data.error || 'Ошибка регистрации';
+                errorDiv.classList.add('show');
+            }
+        } catch(err) { 
+            errorDiv.innerHTML = 'Ошибка сервера';
+            errorDiv.classList.add('show');
+        }
+    });
+    
+    // Если в URL есть ?tab=register — сразу показываем форму регистрации
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('tab') === 'register') {
+        document.getElementById('registerTabBtn').click();
+    }
+</script>
+</body>
+</html>
