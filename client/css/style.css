@@ -1573,398 +1573,69 @@ body::after{
     color: rgba(255,255,255,.7);
 }
 /* ============================================ */
-/* КНОПКА НАСТРОЕК И МОДАЛЬНОЕ ОКНО */
+/* КАРУСЕЛЬ ПОПУЛЯРНЫХ НАПРАВЛЕНИЙ */
 /* ============================================ */
 
-.settings-btn {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    width: 55px;
-    height: 55px;
-    background: linear-gradient(135deg, #4db8ff, #6d7dff);
-    border: none;
-    border-radius: 50%;
-    color: white;
-    font-size: 24px;
-    cursor: pointer;
-    z-index: 1000;
-    box-shadow: 0 5px 20px rgba(77,184,255,.4);
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.settings-btn:hover {
-    transform: rotate(45deg);
-    box-shadow: 0 8px 25px rgba(77,184,255,.5);
-}
-
-.settings-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,.7);
-    backdrop-filter: blur(8px);
-    z-index: 2000;
-    justify-content: center;
-    align-items: center;
-}
-
-.settings-modal-content {
-    background: linear-gradient(135deg, #0f172a, #1e293b);
-    border-radius: 24px;
-    width: 90%;
-    max-width: 400px;
-    border: 1px solid rgba(255,255,255,.1);
-    box-shadow: 0 20px 40px rgba(0,0,0,.3);
-    animation: modalFadeIn 0.3s ease;
-}
-
-@keyframes modalFadeIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
-}
-
-.settings-modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 25px;
-    border-bottom: 1px solid rgba(255,255,255,.1);
-}
-
-.settings-modal-header h2 {
-    font-size: 24px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: #4db8ff;
-}
-
-.settings-modal-close {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 32px;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-.settings-modal-close:hover {
-    color: #ff6b6b;
-    transform: rotate(90deg);
-}
-
-.settings-modal-body {
-    padding: 25px;
-}
-
-.settings-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 0;
-    border-bottom: 1px solid rgba(255,255,255,.08);
-}
-
-.settings-item-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 16px;
-    color: rgba(255,255,255,.8);
-}
-
-.settings-item-info i {
-    font-size: 20px;
-    color: #4db8ff;
-}
-
-/* Переключатель темы */
-.theme-switch {
+.carousel-container {
     position: relative;
-    display: inline-block;
-    width: 60px;
-    height: 28px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
 }
 
-.theme-switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
+.carousel-wrapper {
+    flex: 1;
+    overflow: hidden;
+    border-radius: 30px;
 }
 
-.theme-slider {
-    position: absolute;
+.popular-carousel {
+    display: flex;
+    gap: 25px;
+    transition: transform 0.4s ease;
+    scroll-behavior: smooth;
+}
+
+.popular-carousel .popular-card {
+    min-width: calc(33.333% - 17px);
+    flex-shrink: 0;
     cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(255,255,255,.2);
-    border-radius: 34px;
-    transition: 0.4s;
 }
 
-.theme-slider:before {
-    position: absolute;
-    content: "\f185";
-    font-family: "Font Awesome 6 Free";
-    font-weight: 900;
-    height: 22px;
-    width: 22px;
-    left: 4px;
-    bottom: 3px;
-    background: white;
+.carousel-btn {
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.1);
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
-    color: #f59e0b;
-    transition: 0.4s;
 }
 
-input:checked + .theme-slider {
-    background: linear-gradient(135deg, #4db8ff, #6d7dff);
+.carousel-btn:hover {
+    background: rgba(77,184,255,.2);
+    border-color: #4db8ff;
+    transform: scale(1.05);
 }
 
-input:checked + .theme-slider:before {
-    transform: translateX(30px);
-    content: "\f186";
-    color: #2563eb;
+@media (max-width: 1100px) {
+    .popular-carousel .popular-card {
+        min-width: calc(50% - 12.5px);
+    }
 }
 
-/* ============================================ */
-/* СВЕТЛАЯ ТЕМА — ПРЕМИУМ ВЕРСИЯ */
-/* ============================================ */
-
-body.light-theme {
-    background: #f8fafc;
-    color: #0f172a;
-}
-
-body.light-theme::before {
-    background: linear-gradient(135deg, rgba(255,255,255,.95), rgba(248,250,252,.98));
-    opacity: 1;
-}
-
-body.light-theme .main-header {
-    background: rgba(255,255,255,.95);
-    border-bottom: 1px solid rgba(0,0,0,.05);
-    box-shadow: 0 2px 10px rgba(0,0,0,.02);
-}
-
-body.light-theme .logo {
-    color: #0f172a;
-    font-weight: 800;
-}
-
-body.light-theme .main-nav a {
-    color: #475569;
-    font-weight: 500;
-}
-
-body.light-theme .main-nav a:hover,
-body.light-theme .main-nav a.active {
-    color: #2563eb;
-}
-
-/* Карточки */
-body.light-theme .flight-card,
-body.light-theme .popular-card,
-body.light-theme .feature-card,
-body.light-theme .ticket-card,
-body.light-theme .cart-item,
-body.light-theme .profile-card,
-body.light-theme .auth-card,
-body.light-theme .search-box {
-    background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 24px;
-    box-shadow: 0 4px 12px rgba(0,0,0,.03);
-    transition: all 0.3s ease;
-}
-
-body.light-theme .flight-card:hover,
-body.light-theme .popular-card:hover,
-body.light-theme .cart-item:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(0,0,0,.08);
-    border-color: #cbd5e1;
-}
-
-/* Текст */
-body.light-theme h1,
-body.light-theme h2,
-body.light-theme h3,
-body.light-theme .hero-title {
-    color: #0f172a;
-}
-
-body.light-theme .hero-title span {
-    background: linear-gradient(135deg, #2563eb, #4f46e5);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-body.light-theme p,
-body.light-theme .hero-text,
-body.light-theme .auth-subtitle {
-    color: #475569;
-}
-
-/* Цены */
-body.light-theme .flight-price,
-body.light-theme .item-price .price-value,
-body.light-theme .popular-content p {
-    color: #2563eb;
-}
-
-/* Кнопки */
-body.light-theme .main-btn {
-    background: linear-gradient(135deg, #2563eb, #4f46e5);
-    box-shadow: 0 4px 12px rgba(37,99,235,.2);
-}
-
-body.light-theme .main-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(37,99,235,.3);
-}
-
-body.light-theme .secondary-btn {
-    background: rgba(0,0,0,.04);
-    border: 1px solid #e2e8f0;
-    color: #1e293b;
-}
-
-body.light-theme .secondary-btn:hover {
-    background: rgba(0,0,0,.08);
-}
-
-/* Инфо-теги */
-body.light-theme .info-tag {
-    background: #f1f5f9;
-    border: 1px solid #e2e8f0;
-    color: #1e293b;
-}
-
-body.light-theme .info-tag i {
-    color: #2563eb;
-}
-
-/* Формы */
-body.light-theme .input {
-    background: white;
-    border: 1px solid #e2e8f0;
-    color: #0f172a;
-}
-
-body.light-theme .input:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37,99,235,.1);
-}
-
-body.light-theme .input::placeholder {
-    color: #94a3b8;
-}
-
-/* Хедер и футер */
-body.light-theme .footer {
-    background: white;
-    border-top: 1px solid #e2e8f0;
-}
-
-body.light-theme .footer-left p,
-body.light-theme .footer-links a {
-    color: #64748b;
-}
-
-body.light-theme .footer-links a:hover {
-    color: #2563eb;
-}
-
-/* Статистика */
-body.light-theme .stat-card {
-    background: white;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 2px 8px rgba(0,0,0,.02);
-}
-
-body.light-theme .stat-card h2 {
-    background: linear-gradient(135deg, #2563eb, #4f46e5);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-body.light-theme .stat-card p {
-    color: #64748b;
-}
-
-/* Герой-бадж */
-body.light-theme .hero-badge {
-    background: rgba(37,99,235,.1);
-    border: 1px solid rgba(37,99,235,.2);
-    color: #2563eb;
-}
-
-/* Профиль */
-body.light-theme .profile-avatar {
-    background: linear-gradient(135deg, #2563eb, #4f46e5);
-}
-
-body.light-theme .profile-menu-card a {
-    color: #475569;
-}
-
-body.light-theme .profile-menu-card a:hover,
-body.light-theme .profile-menu-card a.active {
-    background: rgba(37,99,235,.08);
-    color: #2563eb;
-}
-
-/* Авторизация */
-body.light-theme .auth-tab {
-    background: rgba(0,0,0,.04);
-    color: #475569;
-}
-
-body.light-theme .auth-tab.active {
-    background: linear-gradient(135deg, #2563eb, #4f46e5);
-    color: white;
-}
-
-/* Переключатель темы в светлой теме */
-body.light-theme .settings-modal-content {
-    background: white;
-    border: 1px solid #e2e8f0;
-}
-
-body.light-theme .settings-modal-header {
-    border-bottom: 1px solid #e2e8f0;
-}
-
-body.light-theme .settings-modal-header h2 {
-    color: #0f172a;
-}
-
-body.light-theme .settings-item {
-    border-bottom: 1px solid #e2e8f0;
-}
-
-body.light-theme .settings-item-info {
-    color: #1e293b;
-}
-/* Плавные переходы для всех элементов при смене темы */
-* {
-    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-body {
-    transition: background-color 0.3s ease, color 0.2s ease;
+@media (max-width: 768px) {
+    .popular-carousel .popular-card {
+        min-width: 100%;
+    }
+    .carousel-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
 }

@@ -126,14 +126,19 @@
     
     
     const cityNames = {
+        // Россия
         'SVO': 'Москва (SVO)', 'DME': 'Москва (DME)', 'VKO': 'Москва (VKO)',
         'LED': 'Санкт-Петербург (LED)', 'AER': 'Сочи (AER)', 'KZN': 'Казань (KZN)',
         'SVX': 'Екатеринбург (SVX)', 'OVB': 'Новосибирск (OVB)', 'UUD': 'Улан-Удэ (UUD)',
         'IKT': 'Иркутск (IKT)', 'VVO': 'Владивосток (VVO)', 'KUF': 'Самара (KUF)',
-        'ROV': 'Ростов-на-Дону (ROV)', 'GOJ': 'Нижний Новгород (GOJ)',
+        'KRR': 'Краснодар (KRR)', 'ROV': 'Ростов-на-Дону (ROV)', 'GOJ': 'Нижний Новгород (GOJ)',
+        'UFA': 'Уфа (UFA)', 'KGD': 'Калининград (KGD)', 'KJA': 'Красноярск (KJA)',
+        // Ближнее зарубежье
         'DXB': 'Дубай (DXB)', 'IST': 'Стамбул (IST)', 'SAW': 'Стамбул (SAW)',
-        'ALA': 'Алматы (ALA)', 'JFK': 'Нью-Йорк (JFK)', 'LHR': 'Лондон (LHR)',
-        'CDG': 'Париж (CDG)', 'NRT': 'Токио (NRT)', 'BKK': 'Бангкок (BKK)', 'PEK': 'Пекин (PEK)'
+        'ALA': 'Алматы (ALA)',
+        // Дальнее зарубежье
+        'JFK': 'Нью-Йорк (JFK)', 'LHR': 'Лондон (LHR)', 'CDG': 'Париж (CDG)',
+        'NRT': 'Токио (NRT)', 'BKK': 'Бангкок (BKK)', 'PEK': 'Пекин (PEK)'
     };
     
     function getCityName(code) {
@@ -158,131 +163,78 @@
     }
     
     function showNotification(msg) {
-    const oldNotification = document.querySelector('.custom-notification');
-    if (oldNotification) oldNotification.remove();
-    
-    // Маленький звук (раскомментируй, если хочешь)
-    // const audio = new Audio('/sounds/ding.mp3');
-    // audio.play().catch(e => console.log('Звук не поддерживается'));
-    
-    const notification = document.createElement('div');
-    notification.className = 'custom-notification';
-    notification.innerHTML = `
-        <div class="notification-icon">
-            <i class="fas fa-plane-departure"></i>
-        </div>
-        <div class="notification-content">
-            <div class="notification-title">✈️ Билет добавлен!</div>
-            <div class="notification-message">${msg}</div>
-        </div>
-        <button class="notification-close">
-            <i class="fas fa-times"></i>
-        </button>
-        <div class="notification-progress"></div>
-    `;
-    
-    notification.style.cssText = `
-        position: fixed;
-        bottom: 30px;
-        right: 30px;
-        min-width: 340px;
-        background: linear-gradient(135deg, #0f172a, #1e293b);
-        border-radius: 24px;
-        padding: 18px 22px;
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        z-index: 10000;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-        border: 1px solid rgba(77,184,255,0.2);
-        animation: notificationSlideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        backdrop-filter: blur(12px);
-    `;
-    
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes notificationSlideIn {
-            from { opacity: 0; transform: translateX(100px) scale(0.9); }
-            to { opacity: 1; transform: translateX(0) scale(1); }
-        }
-        @keyframes notificationSlideOut {
-            from { opacity: 1; transform: translateX(0) scale(1); }
-            to { opacity: 0; transform: translateX(100px) scale(0.9); }
-        }
-        @keyframes progressShrink {
-            from { width: 100%; }
-            to { width: 0%; }
-        }
-        .custom-notification .notification-icon {
-            width: 52px;
-            height: 52px;
-            background: linear-gradient(135deg, #4db8ff, #6d7dff);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: white;
-            box-shadow: 0 0 20px rgba(77,184,255,0.4);
-        }
-        .custom-notification .notification-content {
-            flex: 1;
-        }
-        .custom-notification .notification-title {
-            font-weight: bold;
-            font-size: 16px;
-            color: #4db8ff;
-            margin-bottom: 4px;
-        }
-        .custom-notification .notification-message {
-            font-size: 14px;
-            color: rgba(255,255,255,0.8);
-        }
-        .custom-notification .notification-close {
-            background: rgba(255,255,255,0.1);
-            border: none;
-            border-radius: 50%;
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: white;
-            transition: 0.2s;
-        }
-        .custom-notification .notification-close:hover {
-            background: rgba(255,107,107,0.3);
-            color: #ff6b6b;
-        }
-        .custom-notification .notification-progress {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #4db8ff, #6d7dff);
-            border-radius: 0 0 24px 24px;
-            animation: progressShrink 3s linear forwards;
-        }
-    `;
-    document.head.appendChild(style);
-    
-    document.body.appendChild(notification);
-    
-    // Закрытие по кнопке
-    notification.querySelector('.notification-close')?.addEventListener('click', () => {
-        notification.style.animation = 'notificationSlideOut 0.3s ease forwards';
-        setTimeout(() => notification.remove(), 300);
-    });
-    
-    // Автоматическое закрытие через 3 секунды
-    setTimeout(() => {
-        if (notification.parentNode) {
+        const oldNotification = document.querySelector('.custom-notification');
+        if (oldNotification) oldNotification.remove();
+        
+        const notification = document.createElement('div');
+        notification.className = 'custom-notification';
+        notification.innerHTML = `
+            <div class="notification-icon"><i class="fas fa-plane-departure"></i></div>
+            <div class="notification-content">
+                <div class="notification-title">✈️ Билет добавлен!</div>
+                <div class="notification-message">${msg}</div>
+            </div>
+            <button class="notification-close"><i class="fas fa-times"></i></button>
+            <div class="notification-progress"></div>
+        `;
+        
+        notification.style.cssText = `
+            position: fixed; bottom: 30px; right: 30px; min-width: 340px;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            border-radius: 24px; padding: 18px 22px; display: flex; align-items: center; gap: 16px;
+            z-index: 10000; box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            border: 1px solid rgba(77,184,255,0.2);
+            animation: notificationSlideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            backdrop-filter: blur(12px);
+        `;
+        
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes notificationSlideIn {
+                from { opacity: 0; transform: translateX(100px) scale(0.9); }
+                to { opacity: 1; transform: translateX(0) scale(1); }
+            }
+            @keyframes notificationSlideOut {
+                from { opacity: 1; transform: translateX(0) scale(1); }
+                to { opacity: 0; transform: translateX(100px) scale(0.9); }
+            }
+            @keyframes progressShrink {
+                from { width: 100%; }
+                to { width: 0%; }
+            }
+            .custom-notification .notification-icon {
+                width: 52px; height: 52px;
+                background: linear-gradient(135deg, #4db8ff, #6d7dff);
+                border-radius: 50%; display: flex; align-items: center; justify-content: center;
+                font-size: 24px; color: white; box-shadow: 0 0 20px rgba(77,184,255,0.4);
+            }
+            .custom-notification .notification-title { font-weight: bold; font-size: 16px; color: #4db8ff; margin-bottom: 4px; }
+            .custom-notification .notification-message { font-size: 14px; color: rgba(255,255,255,0.8); }
+            .custom-notification .notification-close {
+                background: rgba(255,255,255,0.1); border: none; border-radius: 50%;
+                width: 28px; height: 28px; cursor: pointer; color: white;
+            }
+            .custom-notification .notification-progress {
+                position: absolute; bottom: 0; left: 0; height: 3px;
+                background: linear-gradient(90deg, #4db8ff, #6d7dff);
+                border-radius: 0 0 24px 24px; animation: progressShrink 3s linear forwards;
+            }
+        `;
+        document.head.appendChild(style);
+        document.body.appendChild(notification);
+        
+        notification.querySelector('.notification-close')?.addEventListener('click', () => {
             notification.style.animation = 'notificationSlideOut 0.3s ease forwards';
             setTimeout(() => notification.remove(), 300);
-        }
-    }, 3000);
-}
+        });
+        
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.style.animation = 'notificationSlideOut 0.3s ease forwards';
+                setTimeout(() => notification.remove(), 300);
+            }
+        }, 3000);
+    }
     
     async function loadFlights() {
         const container = document.getElementById('flightsList');
@@ -346,16 +298,18 @@
             let filtered = [...allFlights];
             
             if (from && from.trim()) {
+                const searchFrom = from.toLowerCase().trim();
                 filtered = filtered.filter(f => 
-                    getCityName(f.DepartureAirport).toLowerCase().includes(from.toLowerCase()) ||
-                    f.DepartureAirport.toLowerCase().includes(from.toLowerCase())
+                    getCityName(f.DepartureAirport).toLowerCase().includes(searchFrom) ||
+                    f.DepartureAirport.toLowerCase().includes(searchFrom)
                 );
             }
             
             if (to && to.trim()) {
+                const searchTo = to.toLowerCase().trim();
                 filtered = filtered.filter(f => 
-                    getCityName(f.ArrivalAirport).toLowerCase().includes(to.toLowerCase()) ||
-                    f.ArrivalAirport.toLowerCase().includes(to.toLowerCase())
+                    getCityName(f.ArrivalAirport).toLowerCase().includes(searchTo) ||
+                    f.ArrivalAirport.toLowerCase().includes(searchTo)
                 );
             }
             
@@ -649,82 +603,6 @@
     };
     
     loadFlights();
-</script>
-<!-- Кнопка настроек -->
-<button id="settingsBtn" class="settings-btn">
-    <i class="fas fa-cog"></i>
-</button>
-
-<!-- Модальное окно настроек -->
-<div id="settingsModal" class="settings-modal">
-    <div class="settings-modal-content">
-        <div class="settings-modal-header">
-            <h2><i class="fas fa-sliders-h"></i> Настройки</h2>
-            <button class="settings-modal-close">&times;</button>
-        </div>
-        <div class="settings-modal-body">
-            <div class="settings-item">
-                <div class="settings-item-info">
-                    <i class="fas fa-sun"></i>
-                    <span>Тёмная тема</span>
-                </div>
-                <label class="theme-switch">
-                    <input type="checkbox" id="themeToggle">
-                    <span class="theme-slider"></span>
-                </label>
-            </div>
-        </div>
-    </div>
-</div>
-<script>
-    // Кнопка настроек и модальное окно
-    const settingsBtn = document.getElementById('settingsBtn');
-    const settingsModal = document.getElementById('settingsModal');
-    const settingsClose = document.querySelector('.settings-modal-close');
-    const themeToggle = document.getElementById('themeToggle');
-
-    if (settingsBtn) {
-        settingsBtn.addEventListener('click', () => {
-            settingsModal.style.display = 'flex';
-        });
-    }
-
-    if (settingsClose) {
-        settingsClose.addEventListener('click', () => {
-            settingsModal.style.display = 'none';
-        });
-    }
-
-    window.addEventListener('click', (e) => {
-        if (e.target === settingsModal) {
-            settingsModal.style.display = 'none';
-        }
-    });
-
-    function setTheme(isDark) {
-        if (isDark) {
-            document.body.classList.remove('light-theme');
-            localStorage.setItem('theme', 'dark');
-        } else {
-            document.body.classList.add('light-theme');
-            localStorage.setItem('theme', 'light');
-        }
-    }
-
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'light') {
-        document.body.classList.add('light-theme');
-        if (themeToggle) themeToggle.checked = false;
-    } else {
-        document.body.classList.remove('light-theme');
-        if (themeToggle) themeToggle.checked = true;
-    }
-
-    if (themeToggle) {
-        themeToggle.addEventListener('change', (e) => {
-            setTheme(e.target.checked);
-        });
-    }
 </script>
 </body>
 </html>

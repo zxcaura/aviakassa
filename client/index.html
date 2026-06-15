@@ -6,6 +6,78 @@
     <title>AVIAKASSA — Авиабилеты онлайн</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .carousel-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .carousel-wrapper {
+            flex: 1;
+            overflow: hidden;
+            border-radius: 30px;
+        }
+        .popular-carousel {
+            display: flex;
+            gap: 25px;
+            transition: transform 0.5s ease;
+        }
+        .popular-carousel .popular-card {
+            min-width: calc(33.333% - 17px);
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,.05);
+            border-radius: 24px;
+            overflow: hidden;
+        }
+        .popular-carousel .popular-card:hover {
+            transform: translateY(-8px);
+        }
+        .popular-carousel .popular-image {
+            height: 180px;
+            background-size: cover;
+            background-position: center;
+        }
+        .carousel-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.1);
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .carousel-btn:hover {
+            background: rgba(77,184,255,.2);
+            border-color: #4db8ff;
+            transform: scale(1.05);
+        }
+        .popular-content {
+            padding: 16px;
+        }
+        .popular-content h3 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        .popular-content p {
+            color: #4db8ff;
+            font-weight: bold;
+        }
+        @media (max-width: 1100px) {
+            .popular-carousel .popular-card { min-width: calc(50% - 12.5px); }
+        }
+        @media (max-width: 768px) {
+            .popular-carousel .popular-card { min-width: 100%; }
+            .carousel-btn { width: 40px; height: 40px; font-size: 16px; }
+        }
+    </style>
 </head>
 <body>
 
@@ -96,21 +168,17 @@
 
 <section class="popular-section">
     <div class="container">
-        <div class="section-head"><h2>Популярные направления</h2><p>Самые востребованные перелеты среди наших клиентов</p></div>
-        <div class="popular-grid">
-    <div class="popular-card" data-from="Москва" data-to="Сочи">
-        <div class="popular-image moscow"></div>
-        <div class="popular-content"><h3>Москва → Сочи</h3><p>от 4 900 ₽</p></div>
-    </div>
-    <div class="popular-card" data-from="Москва" data-to="Санкт-Петербург">
-        <div class="popular-image spb"></div>
-        <div class="popular-content"><h3>Москва → Санкт-Петербург</h3><p>от 2 700 ₽</p></div>
-    </div>
-    <div class="popular-card" data-from="Москва" data-to="Дубай">
-        <div class="popular-image dubai"></div>
-        <div class="popular-content"><h3>Москва → Дубай</h3><p>от 26 500 ₽</p></div>
-    </div>
-</div>
+        <div class="section-head">
+            <h2>Популярные направления</h2>
+            <p>Самые востребованные перелеты среди наших клиентов</p>
+        </div>
+        <div class="carousel-container">
+            <button class="carousel-btn prev" id="prevBtn"><i class="fas fa-chevron-left"></i></button>
+            <div class="carousel-wrapper">
+                <div class="popular-carousel" id="popularCarousel"></div>
+            </div>
+            <button class="carousel-btn next" id="nextBtn"><i class="fas fa-chevron-right"></i></button>
+        </div>
     </div>
 </section>
 
@@ -136,20 +204,24 @@
 <script src="js/auth.js"></script>
 <script src="js/cart.js"></script>
 <script>
-    // Словарь для преобразования кодов аэропортов в названия городов
     const cityMap = {
         'SVO': 'Москва', 'DME': 'Москва', 'VKO': 'Москва',
         'LED': 'Санкт-Петербург', 'AER': 'Сочи', 'KZN': 'Казань',
         'SVX': 'Екатеринбург', 'OVB': 'Новосибирск', 'UUD': 'Улан-Удэ',
         'IKT': 'Иркутск', 'VVO': 'Владивосток', 'KUF': 'Самара',
         'KRR': 'Краснодар', 'ROV': 'Ростов-на-Дону', 'GOJ': 'Нижний Новгород',
-        'UFA': 'Уфа', 'KGD': 'Калининград', 'DXB': 'Дубай',
-        'IST': 'Стамбул', 'SAW': 'Стамбул', 'ALA': 'Алматы',
+        'UFA': 'Уфа', 'KGD': 'Калининград', 'KJA': 'Красноярск',
+        'DXB': 'Дубай', 'IST': 'Стамбул', 'SAW': 'Стамбул', 'ALA': 'Алматы',
         'JFK': 'Нью-Йорк', 'LHR': 'Лондон', 'CDG': 'Париж',
         'NRT': 'Токио', 'BKK': 'Бангкок', 'PEK': 'Пекин'
     };
-    
-    let allCities = ['Москва', 'Санкт-Петербург', 'Сочи', 'Дубай', 'Стамбул', 'Алматы', 'Нью-Йорк', 'Лондон', 'Париж', 'Токио', 'Бангкок', 'Пекин', 'Казань', 'Екатеринбург', 'Новосибирск', 'Улан-Удэ', 'Иркутск', 'Владивосток', 'Ростов-на-Дону', 'Нижний Новгород', 'Самара'];
+
+    let allCities = [
+        'Москва', 'Санкт-Петербург', 'Сочи', 'Краснодар', 'Ростов-на-Дону',
+        'Казань', 'Самара', 'Уфа', 'Екатеринбург', 'Новосибирск', 'Красноярск',
+        'Иркутск', 'Улан-Удэ', 'Владивосток', 'Нижний Новгород', 'Калининград',
+        'Дубай', 'Стамбул', 'Алматы', 'Нью-Йорк', 'Лондон', 'Париж', 'Токио', 'Бангкок', 'Пекин'
+    ];
     
     async function loadCitiesFromFlights() {
         try {
@@ -219,100 +291,140 @@
         window.location.href = 'flights.html';
     });
     
-    document.querySelectorAll('.popular-card').forEach(card => {
-        card.addEventListener('click', () => {
-            const from = card.dataset.from;
-            const to = card.dataset.to;
-            if(from && to) {
-                document.getElementById('fromCity').value = from;
-                document.getElementById('toCity').value = to;
-                document.getElementById('searchFlightsBtn').click();
-            }
-        });
-    });
-    
     const urlParams = new URLSearchParams(window.location.search);
     if(urlParams.get('login') === 'success') {
         window.history.replaceState({}, document.title, window.location.pathname);
         setTimeout(() => { if(typeof checkAuth === 'function') checkAuth(); }, 200);
     }
-    updatePassengers();
-</script>
-<!-- Кнопка настроек -->
-<button id="settingsBtn" class="settings-btn">
-    <i class="fas fa-cog"></i>
-</button>
-
-<!-- Модальное окно настроек -->
-<div id="settingsModal" class="settings-modal">
-    <div class="settings-modal-content">
-        <div class="settings-modal-header">
-            <h2><i class="fas fa-sliders-h"></i> Настройки</h2>
-            <button class="settings-modal-close">&times;</button>
-        </div>
-        <div class="settings-modal-body">
-            <div class="settings-item">
-                <div class="settings-item-info">
-                    <i class="fas fa-sun"></i>
-                    <span>Тёмная тема</span>
+    
+    // ========== КАРУСЕЛЬ С РЕАЛЬНЫМИ КАРТИНКАМИ ==========
+    const popularDestinations = [
+    { from: "Москва", to: "Сочи", price: "6 900 ₽", img: "/images/photo-1513326738677-b964603b136d.avif" },
+    { from: "Москва", to: "Санкт-Петербург", price: "4 100 ₽", img: "/images/spb.jpg" },
+    { from: "Москва", to: "Дубай", price: "22 900 ₽", img: "/images/photo-1512453979798-5ea266f8880c.avif" },
+    { from: "Москва", to: "Токио", price: "54 900 ₽", img: "/images/tokyo.jpg" },
+    { from: "Москва", to: "Нью-Йорк", price: "46 900 ₽", img: "/images/newyork.jpg" },
+    { from: "Москва", to: "Лондон", price: "22 900 ₽", img: "/images/london.jpg" },
+    { from: "Москва", to: "Париж", price: "19 900 ₽", img: "/images/paris.jpg" },
+    { from: "Москва", to: "Пекин", price: "30 900 ₽", img: "/images/pekin.jpg" },
+    { from: "Санкт-Петербург", to: "Сочи", price: "7 500 ₽", img: "/images/spb.jpg" },
+    { from: "Новосибирск", to: "Москва", price: "8 900 ₽", img: "/images/novosibirsk.jpg" },
+    { from: "Владивосток", to: "Токио", price: "18 900 ₽", img: "/images/vladivostok.jpg" }
+];
+    
+    let carouselItems = [...popularDestinations, ...popularDestinations];
+    let currentIndex = 0;
+    const cardsPerView = 3;
+    let autoPlayInterval;
+    
+    function renderCarousel() {
+        const container = document.getElementById('popularCarousel');
+        if (!container) return;
+        
+        container.innerHTML = carouselItems.map(dest => `
+            <div class="popular-card" data-from="${dest.from}" data-to="${dest.to}">
+                <div class="popular-image" style="background-image: url('${dest.img}'); background-size: cover; background-position: center;"></div>
+                <div class="popular-content">
+                    <h3>${dest.from} → ${dest.to}</h3>
+                    <p>от ${dest.price}</p>
                 </div>
-                <label class="theme-switch">
-                    <input type="checkbox" id="themeToggle">
-                    <span class="theme-slider"></span>
-                </label>
             </div>
-        </div>
-    </div>
-</div>
-<script>
-    // Кнопка настроек и модальное окно
-    const settingsBtn = document.getElementById('settingsBtn');
-    const settingsModal = document.getElementById('settingsModal');
-    const settingsClose = document.querySelector('.settings-modal-close');
-    const themeToggle = document.getElementById('themeToggle');
-
-    if (settingsBtn) {
-        settingsBtn.addEventListener('click', () => {
-            settingsModal.style.display = 'flex';
+        `).join('');
+        
+        document.querySelectorAll('.popular-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const from = card.dataset.from;
+                const to = card.dataset.to;
+                if (from && to) {
+                    document.getElementById('fromCity').value = from;
+                    document.getElementById('toCity').value = to;
+                    document.getElementById('searchFlightsBtn').click();
+                }
+            });
         });
     }
-
-    if (settingsClose) {
-        settingsClose.addEventListener('click', () => {
-            settingsModal.style.display = 'none';
-        });
-    }
-
-    window.addEventListener('click', (e) => {
-        if (e.target === settingsModal) {
-            settingsModal.style.display = 'none';
+    
+    function updateCarousel(instant = false) {
+        const carousel = document.getElementById('popularCarousel');
+        if (!carousel || !carousel.children.length) return;
+        const itemWidth = carousel.children[0].offsetWidth + 25;
+        const maxIndex = carouselItems.length - cardsPerView;
+        
+        if (currentIndex >= maxIndex) {
+            currentIndex = 0;
+            carousel.style.transition = 'none';
+            carousel.style.transform = `translateX(0)`;
+            setTimeout(() => {
+                carousel.style.transition = 'transform 0.5s ease';
+            }, 50);
+            return;
         }
-    });
-
-    function setTheme(isDark) {
-        if (isDark) {
-            document.body.classList.remove('light-theme');
-            localStorage.setItem('theme', 'dark');
+        
+        if (!instant) {
+            carousel.style.transition = 'transform 0.5s ease';
+        }
+        carousel.style.transform = `translateX(-${currentIndex * itemWidth}px)`;
+    }
+    
+    function nextSlide() {
+        const maxIndex = carouselItems.length - cardsPerView;
+        if (currentIndex < maxIndex) {
+            currentIndex++;
+            updateCarousel();
         } else {
-            document.body.classList.add('light-theme');
-            localStorage.setItem('theme', 'light');
+            currentIndex++;
+            updateCarousel();
         }
     }
-
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'light') {
-        document.body.classList.add('light-theme');
-        if (themeToggle) themeToggle.checked = false;
-    } else {
-        document.body.classList.remove('light-theme');
-        if (themeToggle) themeToggle.checked = true;
+    
+    function prevSlide() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            updateCarousel();
+        } else {
+            const carousel = document.getElementById('popularCarousel');
+            if (!carousel) return;
+            const itemWidth = carousel.children[0]?.offsetWidth + 25 || 0;
+            const maxIndex = carouselItems.length - cardsPerView;
+            currentIndex = maxIndex;
+            carousel.style.transition = 'none';
+            carousel.style.transform = `translateX(-${currentIndex * itemWidth}px)`;
+            setTimeout(() => {
+                carousel.style.transition = 'transform 0.5s ease';
+                currentIndex--;
+                updateCarousel();
+            }, 50);
+        }
     }
-
-    if (themeToggle) {
-        themeToggle.addEventListener('change', (e) => {
-            setTheme(e.target.checked);
-        });
+    
+    document.getElementById('prevBtn')?.addEventListener('click', () => {
+        prevSlide();
+        resetAutoPlay();
+    });
+    
+    document.getElementById('nextBtn')?.addEventListener('click', () => {
+        nextSlide();
+        resetAutoPlay();
+    });
+    
+    function startAutoPlay() {
+        autoPlayInterval = setInterval(() => {
+            nextSlide();
+        }, 4000);
     }
+    
+    function resetAutoPlay() {
+        if (autoPlayInterval) clearInterval(autoPlayInterval);
+        startAutoPlay();
+    }
+    
+    window.addEventListener('resize', () => setTimeout(() => updateCarousel(true), 100));
+    
+    renderCarousel();
+    setTimeout(() => updateCarousel(true), 100);
+    startAutoPlay();
+    
+    updatePassengers();
 </script>
 </body>
 </html>
